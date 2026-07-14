@@ -6,11 +6,18 @@ const auth = require("../auth");
 
 module.exports.addProduct = (req, res) => {
   if (req.user.isAdmin) {
+    if (!req.file) {
+      return res
+        .status(400)
+        .send({ message: "Please provide a bouquet image." });
+    }
+
     let newProduct = new Product({
       productName: req.body.productName,
       description: req.body.description,
       price: req.body.price,
       stock: req.body.stock,
+      imageUrl: req.file.path,
     });
 
     newProduct
@@ -21,6 +28,7 @@ module.exports.addProduct = (req, res) => {
           .send({ message: `${req.body.productName} is successfully added!` });
       })
       .catch((error) => {
+        console.log(error);
         res
           .status(500)
           .send({ message: "An error occurred while adding the product." });

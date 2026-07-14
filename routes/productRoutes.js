@@ -2,9 +2,15 @@ const express = require("express");
 const auth = require("../auth");
 const router = express.Router();
 const productControllers = require("../controllers/productControllers");
+const upload = require("../cloudinary");
 
 // Adding a product
-router.post("/", auth.verify, productControllers.addProduct);
+router.post(
+  "/",
+  auth.verify,
+  upload.single("image"),
+  productControllers.addProduct,
+);
 
 // Retrieving all active products
 router.get("/", productControllers.getAvailableProducts);
