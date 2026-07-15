@@ -10,12 +10,6 @@ router.post("/register", userControllers.registerUser);
 // User login
 router.post("/login", userControllers.loginUser);
 
-// Add to cart (Non-admin)
-router.post("/add-to-cart", auth.verify, userControllers.addToCart);
-
-// Checkout and place order
-router.post("/checkout", auth.verify, userControllers.checkout);
-
 // Retrieving user details
 router.get("/details", auth.verify, userControllers.getUserDetails);
 
@@ -34,6 +28,9 @@ router.patch(
   auth.verifyAdmin,
   userControllers.setNonAdmin,
 );
+
+// Add to cart (Non-admin)
+router.post("/add-to-cart", auth.verify, userControllers.addToCart);
 
 // Retrieving user orders
 router.get("/my-orders", auth.verify, userControllers.retrieveOrders);

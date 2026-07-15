@@ -82,7 +82,6 @@ module.exports.loginUser = (req, res) => {
 };
 
 // Retrieve user details
-
 module.exports.getUserDetails = (req, res) => {
   return User.findById(req.user.id)
     .then((user) => {
@@ -139,10 +138,14 @@ module.exports.setNonAdmin = (req, res) => {
   }
 };
 
-// Create an order(Non-admin)
+// Retrieve user's orders Non-admin
+module.exports.retrieveOrders = (req, res) => {
+  return User.findById(req.user.id).then((result) => {
+    res.status(200).send(result.orders);
+  });
+};
 
 // Add to cart (Non-admin)
-
 module.exports.addToCart = async (req, res) => {
   try {
     if (req.user.isAdmin) {
@@ -178,6 +181,7 @@ module.exports.addToCart = async (req, res) => {
       user.cart.push({
         productId: product._id,
         productName: product.productName,
+        imageUrl: product.imageUrl,
         price: product.price,
         quantity,
         subtotal: product.price * quantity,
@@ -208,91 +212,7 @@ module.exports.addToCart = async (req, res) => {
   }
 };
 
-// Checkout and place order
-
-module.exports.checkout = async (req, res) => {
-  try {
-    if (req.user.isAdmin) {
-      return res.status(403).send("Admin accounts cannot place orders.");
-    }
-
-    // Find user
-    const user = await User.findById(req.user.id);
-
-    // Check if cart is empty
-    if (!user.cart.length) {
-      return res.status(400).send("Cart is empty.");
-    }
-
-    // Validate stock before checkout
-    for (const item of user.cart) {
-      const product = await Product.findById(item.productId);
-
-      if (!product) {
-        return res.status(404).send(`${item.productName} not found.`);
-      }
-
-      if (product.stock < item.quantity) {
-        return res
-          .status(400)
-          .send(`Insufficient stock for ${item.productName}.`);
-      }
-    }
-
-    // Save order in user.orders
-    user.orders.push({
-      products: user.cart,
-      totalAmount: user.cartTotal,
-    });
-
-    // Update products
-    for (const item of user.cart) {
-      const product = await Product.findById(item.productId);
-
-      product.orders.push({
-        userId: user._id,
-        email: user.email,
-        productName: item.productName,
-        quantity: item.quantity,
-      });
-
-      // Deduct stock
-      product.stock -= item.quantity;
-
-      await product.save();
-    }
-
-    // Clear cart after successful checkout
-    user.cart = [];
-    user.cartTotal = 0;
-
-    await user.save();
-
-    return res.status(200).send({
-      success: true,
-      message: "Checkout successful.",
-      orders: user.orders,
-    });
-  } catch (error) {
-    console.log(error);
-
-    return res.status(500).send({
-      success: false,
-      message: "Checkout failed.",
-    });
-  }
-};
-
-// Retrieve user's orders
-
-module.exports.retrieveOrders = (req, res) => {
-  return User.findById(req.user.id).then((result) => {
-    res.status(200).send(result.orders);
-  });
-};
-
-// Retrieve all orders
-
+// Retrieve all orders - Admin Only
 module.exports.allOrders = (req, res) => {
   if (req.user.isAdmin) {
     return User.find({}).then((result) => {

@@ -41,6 +41,7 @@ const userSchema = new mongoose.Schema({
     {
       productId: String,
       productName: String,
+      imageUrl: String,
       price: Number,
       quantity: Number,
       subtotal: Number,

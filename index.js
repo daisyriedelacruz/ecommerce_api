@@ -4,6 +4,7 @@ require("dotenv").config();
 const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/users", userRoutes);
 app.use("/products", productRoutes);
+app.use("/cart", cartRoutes);
 
 const port = process.env.PORT || 4000;
 
