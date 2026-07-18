@@ -17,6 +17,10 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: [true, "Please input items available."],
   },
+  category: {
+    type: String,
+    required: true,
+  },
   isAvailable: {
     type: Boolean,
     default: true,

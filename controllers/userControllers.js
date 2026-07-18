@@ -100,6 +100,73 @@ module.exports.getUserDetails = (req, res) => {
     .catch((error) => errorHandler(error, req, res));
 };
 
+// Reset password
+module.exports.resetPassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const { id } = req.user;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters." });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ updated: false, message: "Incorrect current password." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await User.findByIdAndUpdate(
+      id,
+      { password: hashedPassword },
+      { returnDocument: "after" },
+    );
+
+    res
+      .status(200)
+      .json({ updated: true, message: "Password reset successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Update the user profile
+module.exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const { firstName, lastName, contactNumber, email, address } = req.body;
+
+    if (contactNumber.length !== "11") {
+      return res
+        .status(400)
+        .send({ message: "Contact number must be 11 characters" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { firstName, lastName, contactNumber, email, address },
+      { returnDocument: "after" },
+    );
+
+    res.json({ updatedUser, message: "Details successfully updated!" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update profile" });
+  }
+};
+
 // Update user role to admin
 module.exports.setAdmin = (req, res) => {
   let updateRole = {

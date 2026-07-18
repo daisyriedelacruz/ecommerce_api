@@ -65,6 +65,10 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: [true, "Please enter your product name."],
           },
+          price: {
+            type: Number,
+          },
+          imageUrl: { type: String },
           quantity: {
             type: Number,
             default: 0,

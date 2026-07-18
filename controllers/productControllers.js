@@ -18,14 +18,17 @@ module.exports.addProduct = (req, res) => {
       price: req.body.price,
       stock: req.body.stock,
       imageUrl: req.file.path,
+      category: req.body.category,
     });
 
     newProduct
       .save()
       .then((product) => {
-        res
-          .status(201)
-          .send({ message: `${req.body.productName} is successfully added!` });
+        console.log(product);
+        res.status(201).send({
+          message: `${req.body.productName} is successfully added!`,
+          product: product,
+        });
       })
       .catch((error) => {
         console.log(error);
@@ -71,11 +74,12 @@ module.exports.updateProduct = (req, res) => {
     let updateProduct = {
       productName: req.body.productName,
       description: req.body.description,
+      category: req.body.category,
       price: req.body.price,
       stock: req.body.stock,
     };
     return Product.findByIdAndUpdate(req.params.productId, updateProduct, {
-      new: true,
+      returnDocument: "after",
     })
       .then((result) => {
         console.log(result);
@@ -105,7 +109,7 @@ module.exports.archiveProduct = (req, res) => {
     return Product.findByIdAndUpdate(
       req.params.productId,
       updateisAvailableField,
-      { new: true },
+      { returnDocument: "after" },
     )
       .then((result) => {
         res
@@ -134,7 +138,7 @@ module.exports.activateProduct = (req, res) => {
     return Product.findByIdAndUpdate(
       req.params.productId,
       updateisAvailableField,
-      { new: true },
+      { returnDocument: "after" },
     )
       .then((result) => {
         res
@@ -153,18 +157,25 @@ module.exports.activateProduct = (req, res) => {
   }
 };
 
-module.exports.searchProductsByName = async (req, res) => {
+module.exports.productSearch = async (req, res) => {
   try {
-    const { productName } = req.body;
+    const { searchItem } = req.body;
+
+    if (!searchItem) {
+      return res.status(400).json({ error: "Search query is required" });
+    }
 
     const products = await Product.find({
-      productName: { $regex: productName, $options: "i" },
+      $or: [
+        { productName: { $regex: searchItem, $options: "i" } },
+        { description: { $regex: searchItem, $options: "i" } },
+      ],
     });
 
-    res.status(200).send({ products });
+    res.json(products);
   } catch (error) {
     console.error(error);
-    res.status(500).send({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 

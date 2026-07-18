@@ -13,6 +13,12 @@ router.post("/login", userControllers.loginUser);
 // Retrieving user details
 router.get("/details", auth.verify, userControllers.getUserDetails);
 
+// POST route for resetting the password
+router.patch("/reset-password", auth.verify, userControllers.resetPassword);
+
+// Update user profile route
+router.put("/update-profile", auth.verify, userControllers.updateProfile);
+
 // Updating role to admin
 router.patch(
   "/set-admin/:id",

@@ -22,8 +22,7 @@ router.get(
   auth.verifyAdmin,
   productControllers.getAllProducts,
 );
-
-router.get("/search-name", productControllers.searchProductsByName);
+router.post("/search", productControllers.productSearch);
 router.get("/search-price", productControllers.searchProductsByPrice);
 
 // Retrieve a product

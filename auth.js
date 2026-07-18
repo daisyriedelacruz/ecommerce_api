@@ -38,8 +38,6 @@ module.exports.verify = (req, res, next) => {
 };
 
 module.exports.verifyAdmin = (req, res, next) => {
-  console.log("Result from verifyAdmin: ", req.user);
-
   if (req.user.isAdmin) {
     next();
   } else {

@@ -175,8 +175,8 @@ module.exports.removeFromCart = async (req, res) => {
       {
         $pull: { cart: { productId: productId } }, // 'cart' is your array field name
       },
-      { new: true }, // Return the updated document after modification
-    ).populate("cart.productId"); // Optional: populate product details for frontend
+      { returnDocument: "after" },
+    ).populate("cart.productId");
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User or Cart not found" });
